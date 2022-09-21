@@ -1,0 +1,28 @@
+{
+  "name": "static-job-listings",
+  "version": "1.0.0",
+  "description": "Job listing with filters",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wojciech94/Static-Job-Listings.git"
+  },
+  "keywords": [
+    "js",
+    "sass",
+    "rwd",
+    "json"
+  ],
+  "author": "szean",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/wojciech94/Static-Job-Listings/issues"
+  },
+  "homepage": "https://github.com/wojciech94/Static-Job-Listings#readme",
+  "dependencies": {
+    "sass": "^1.54.9"
+  }
+}
