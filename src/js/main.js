@@ -1,4 +1,5 @@
 const header = document.querySelector('.header')
+const filterButtons = document.querySelectorAll('.job-item__tools__element-btn')
 
 //Filter
 //  ---filter__group
@@ -37,9 +38,22 @@ const genFilter = () => {
 	}
 }
 
-const addFilterItem = e => {
-	console.log(e.target)
-	//add element to filter group based on e.target.textContent
+function createFilterItem(text) {
+	const filterGroup = document.querySelector('.filter__group')
+	test = filterGroup
+	if (filterGroup != null) {
+		const filterGroupItem = document.createElement('div')
+		filterGroupItem.classList.add('filter__group__item')
+		const filterText = document.createElement('span')
+		filterText.classList.add('filter__group__item__text')
+		filterText.textContent = text
+		const filterBtn = document.createElement('button')
+		filterBtn.classList.add('filter__group__item__btn')
+		filterBtn.textContent = 'x'
+		filterGroup.appendChild(filterGroupItem)
+		filterGroupItem.append(filterText, filterBtn)
+		filterBtn.addEventListener('click', updateFilter)
+	}
 }
 
 const updateFilter = e => {
@@ -55,13 +69,37 @@ const updateFilter = e => {
 	}
 	parentElement.remove()
 	if (activeFilter == null || activeFilter.length == 0) {
-		document.querySelector('.filter').remove()
+		document.querySelector('.filter').classList.add('filter--disabled')
 	}
 }
 
 const clearFilter = () => {
 	activeFilter = []
-	document.querySelector('.filter').remove()
+	const filterGroupItems = document.querySelectorAll('.filter__group__item')
+	filterGroupItems.forEach(fg => {
+		fg.remove()
+	})
+	document.querySelector('.filter').classList.add('filter--disabled')
+}
+
+const addFilter = e => {
+	const text = e.target.textContent
+	if (!activeFilter.includes(text)) {
+		if (activeFilter.length == 0) {
+			document.querySelector('.filter').classList.remove('filter--disabled')
+		}
+		activeFilter.push(text)
+		createFilterItem(text)
+	} else {
+		console.log('Filter allready exsist')
+	}
+}
+
+const setButtonsListeners = () => {
+	filterButtons.forEach(btn => {
+		btn.addEventListener('click', addFilter)
+	})
 }
 
 document.addEventListener('DOMContentLoaded', genFilter)
+document.addEventListener('DOMContentLoaded', setButtonsListeners)

@@ -56,6 +56,9 @@ body .filter {
   translate: -50%;
   overflow: hidden;
 }
+body .filter--disabled {
+  display: none;
+}
 body .filter__group {
   display: flex;
   align-items: center;
@@ -181,14 +184,14 @@ body .container .job-item__details::after {
   height: 1px;
   background-color: hsl(180deg, 8%, 52%);
 }
-body .container .job-item__details--element {
+body .container .job-item__details__element {
   color: hsl(180deg, 8%, 52%);
 }
-body .container .job-item__details--element:nth-child(2n) {
+body .container .job-item__details__element:nth-child(2n) {
   padding: 0 20px;
   position: relative;
 }
-body .container .job-item__details--element:nth-child(2n)::before {
+body .container .job-item__details__element:nth-child(2n)::before {
   position: absolute;
   left: 10px;
   top: 50%;
@@ -199,7 +202,7 @@ body .container .job-item__details--element:nth-child(2n)::before {
   translate: -50% -50%;
   background-color: hsl(180deg, 8%, 52%);
 }
-body .container .job-item__details--element:nth-child(2n)::after {
+body .container .job-item__details__element:nth-child(2n)::after {
   position: absolute;
   right: 10px;
   top: 50%;
@@ -214,11 +217,11 @@ body .container .job-item__tools {
   display: flex;
   flex-wrap: wrap;
 }
-body .container .job-item__tools--element {
+body .container .job-item__tools__element {
   margin-right: 12px;
   margin: 6px 12px 6px 0;
 }
-body .container .job-item__tools--element-btn {
+body .container .job-item__tools__element-btn {
   font-size: 1.5rem;
   padding: 6px 10px;
   border-radius: 6px;
@@ -228,7 +231,7 @@ body .container .job-item__tools--element-btn {
   font-weight: bold;
   transition: color 0.2s ease-in, background-color 0.2s ease-in;
 }
-body .container .job-item__tools--element-btn:hover {
+body .container .job-item__tools__element-btn:hover {
   background-color: hsl(180deg, 14%, 20%);
   color: #fff;
 }
