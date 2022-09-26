@@ -8,8 +8,78 @@ const filterButtons = document.querySelectorAll('.job-item__tools__element-btn')
 //          button.filter__group__item__btn (x)
 //  ---button.btn.filter__clear-btn (Clear)
 
+class Company {
+	constructor(obj) {
+		this.id = obj.id
+		this.company = obj.company
+		this.logo = obj.logo
+		this.new = obj.new
+		this.featured = obj.featured
+		this.position = obj.position
+		this.role = obj.role
+		this.level = obj.level
+		this.postedAt = obj.postedAt
+		this.contract = obj.contract
+		this.location = obj.location
+		this.languages = obj.languages
+		this.tools = obj.tools
+	}
+}
+
 let activeFilter = ['Frontend', 'Senior']
 let test
+let companies = []
+
+const getCompanies = () => {
+	fetch('data.json')
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(element => companies.push(new Company(element)))
+		})
+}
+
+const generateJobItem = () => {
+	createHeaderJob(companies[0])
+}
+
+function createHeaderJob(company) {
+	test = company
+	if (company.new == true || company.featured == true) {
+		const itemHeader = document.createElement('div')
+		itemHeader.classList.add('job-item__header')
+		const headerCompany = document.createElement('div')
+		headerCompany.classList.add('job-item__header__company')
+		const companyText = document.createElement('span')
+		companyText.textContent = company.company
+		const preferencesGroup = document.createElement('div')
+		preferencesGroup.classList.add('job-item__header__preference')
+		if (company.new == true) {
+			console.log('new')
+			const preferenceNew = document.createElement('div')
+			preferenceNew.classList.add('job-item__header__preference--default', 'job-item__header__preference--new')
+			const newSpan = document.createElement('span')
+			newSpan.textContent = 'NEW!'
+			preferenceNew.appendChild(newSpan)
+			preferencesGroup.appendChild(preferenceNew)
+		}
+		if (company.featured == true) {
+			console.log('featured')
+			const preferenceFeatured = document.createElement('div')
+			preferenceFeatured.classList.add(
+				'job-item__header__preference--default',
+				'job-item__header__preference--featured'
+			)
+			const featuredSpan = document.createElement('span')
+			featuredSpan.textContent = 'FEATURED'
+			preferenceFeatured.appendChild(featuredSpan)
+			preferencesGroup.appendChild(preferenceFeatured)
+		}
+		headerCompany.appendChild(companyText)
+		itemHeader.append(headerCompany, preferencesGroup)
+		test = itemHeader
+		return itemHeader
+	}
+}
 
 const genFilter = () => {
 	const filter = document.createElement('div')
@@ -103,3 +173,5 @@ const setButtonsListeners = () => {
 
 document.addEventListener('DOMContentLoaded', genFilter)
 document.addEventListener('DOMContentLoaded', setButtonsListeners)
+document.addEventListener('DOMContentLoaded', getCompanies)
+//document.addEventListener('DOMContentLoaded', generateJobItem)
