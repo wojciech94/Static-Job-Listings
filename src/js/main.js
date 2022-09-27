@@ -1,4 +1,5 @@
 const header = document.querySelector('.header')
+const container = document.querySelector('.container')
 const filterButtons = document.querySelectorAll('.job-item__tools__element-btn')
 
 //Filter
@@ -38,19 +39,36 @@ const getCompanies = () => {
 		})
 }
 
-const generateJobItem = () => {
-	createHeaderJob(companies[0])
+const generateJobItems = () => {
+	companies.forEach(company => {
+		const jobItem = document.createElement('div')
+		jobItem.classList.add('job-item')
+		const jobLogo = document.createElement('img')
+		jobLogo.classList.add('job-item__logo')
+		jobLogo.setAttribute('src', company.logo.replace('/images', '/src/img'))
+		jobLogo.setAttribute('alt', company.company)
+		const header = createJobHeader(company)
+		const jobRole = document.createElement('p')
+		jobRole.classList.add('job-item__role')
+		jobRole.textContent = company.position
+		const jobDetails = createJobDetails(company)
+		const jobTools = createJobTools(company)
+		jobItem.append(jobLogo, header, jobRole, jobDetails, jobTools)
+		container.append(jobItem)
+	})
 }
 
-function createHeaderJob(company) {
-	test = company
+//Create elements
+function createJobHeader(company) {
+	const itemHeader = document.createElement('div')
+	itemHeader.classList.add('job-item__header')
+	const headerCompany = document.createElement('div')
+	headerCompany.classList.add('job-item__header__company')
+	const companyText = document.createElement('span')
+	companyText.textContent = company.company
+	headerCompany.appendChild(companyText)
+	itemHeader.appendChild(headerCompany)
 	if (company.new == true || company.featured == true) {
-		const itemHeader = document.createElement('div')
-		itemHeader.classList.add('job-item__header')
-		const headerCompany = document.createElement('div')
-		headerCompany.classList.add('job-item__header__company')
-		const companyText = document.createElement('span')
-		companyText.textContent = company.company
 		const preferencesGroup = document.createElement('div')
 		preferencesGroup.classList.add('job-item__header__preference')
 		if (company.new == true) {
@@ -74,16 +92,60 @@ function createHeaderJob(company) {
 			preferenceFeatured.appendChild(featuredSpan)
 			preferencesGroup.appendChild(preferenceFeatured)
 		}
-		headerCompany.appendChild(companyText)
-		itemHeader.append(headerCompany, preferencesGroup)
-		test = itemHeader
-		return itemHeader
+		itemHeader.append(preferencesGroup)
 	}
+	return itemHeader
 }
 
+function createJobDetails(company) {
+	const detailsBox = document.createElement('div')
+	detailsBox.classList.add('job-item__details')
+	const createdDetails = document.createElement('span')
+	createdDetails.classList.add('job-item__details__element', 'job-item__details--create-time')
+	createdDetails.textContent = company.postedAt
+	const contractDetails = document.createElement('span')
+	contractDetails.classList.add('job-item__details__element', 'job-item__details--contract')
+	contractDetails.textContent = company.contract
+	const locationDetails = document.createElement('span')
+	locationDetails.classList.add('job-item__details__element', 'job-item__details--location')
+	locationDetails.textContent = company.location
+	detailsBox.append(createdDetails, contractDetails, locationDetails)
+	return detailsBox
+}
+
+function createJobTools(company) {
+	const toolsBox = document.createElement('div')
+	toolsBox.classList.add('job-item__tools')
+	const roleElement = createJobElement(company.role)
+	const levelElement = createJobElement(company.level)
+	toolsBox.append(roleElement, levelElement)
+	company.languages.forEach(language => {
+		const langElement = createJobElement(language)
+		toolsBox.appendChild(langElement)
+	})
+	company.tools.forEach(tool => {
+		const toolElement = createJobElement(tool)
+		toolsBox.appendChild(toolElement)
+	})
+	return toolsBox
+}
+
+function createJobElement(text) {
+	const toolsElement = document.createElement('div')
+	toolsElement.classList.add('job-item__tools__element')
+	const elementButton = document.createElement('button')
+	elementButton.classList.add('btn', 'job-item__tools__element-btn')
+	elementButton.textContent = text
+	elementButton.addEventListener('click', addFilter)
+	toolsElement.appendChild(elementButton)
+	return toolsElement
+}
+
+//Filter functions
 const genFilter = () => {
 	const filter = document.createElement('div')
 	filter.classList.add('filter')
+	filter.id = 'filter'
 	document.body.appendChild(filter)
 	const filterGroup = document.createElement('div')
 	filterGroup.classList.add('filter__group')
@@ -140,6 +202,7 @@ const updateFilter = e => {
 	parentElement.remove()
 	if (activeFilter == null || activeFilter.length == 0) {
 		document.querySelector('.filter').classList.add('filter--disabled')
+		container.style.marginTop = '0px'
 	}
 }
 
@@ -150,6 +213,7 @@ const clearFilter = () => {
 		fg.remove()
 	})
 	document.querySelector('.filter').classList.add('filter--disabled')
+	container.style.marginTop = '0px'
 }
 
 const addFilter = e => {
@@ -157,6 +221,7 @@ const addFilter = e => {
 	if (!activeFilter.includes(text)) {
 		if (activeFilter.length == 0) {
 			document.querySelector('.filter').classList.remove('filter--disabled')
+			container.style.marginTop = ''
 		}
 		activeFilter.push(text)
 		createFilterItem(text)
@@ -174,4 +239,4 @@ const setButtonsListeners = () => {
 document.addEventListener('DOMContentLoaded', genFilter)
 document.addEventListener('DOMContentLoaded', setButtonsListeners)
 document.addEventListener('DOMContentLoaded', getCompanies)
-//document.addEventListener('DOMContentLoaded', generateJobItem)
+//document.addEventListener('DOMContentLoaded', generateJobItems)
