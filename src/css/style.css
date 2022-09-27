@@ -238,6 +238,9 @@ body .container .job-item__tools__element-btn:hover {
   background-color: hsl(180deg, 14%, 20%);
   color: #fff;
 }
+body .container .job-item--disabled {
+  display: none;
+}
 
 .attribution {
   font-size: 11px;

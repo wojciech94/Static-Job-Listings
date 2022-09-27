@@ -27,21 +27,24 @@ class Company {
 	}
 }
 
-let activeFilter = ['Frontend', 'Senior']
+let activeFilter = []
 let test
+let activeCompanies = []
 let companies = []
 
-const getCompanies = () => {
+const getData = () => {
 	fetch('data.json')
 		.then(response => response.json())
 		.then(data => {
-			data.forEach(element => companies.push(new Company(element)))
+			data.forEach(element => activeCompanies.push(new Company(element)))
+			generateJobItems()
 		})
 }
 
 const generateJobItems = () => {
-	companies.forEach(company => {
+	activeCompanies.forEach(company => {
 		const jobItem = document.createElement('div')
+		jobItem.dataset.id = company.id
 		jobItem.classList.add('job-item')
 		const jobLogo = document.createElement('img')
 		jobLogo.classList.add('job-item__logo')
@@ -155,19 +158,19 @@ const genFilter = () => {
 	clearBtn.textContent = 'Clear'
 	clearBtn.addEventListener('click', clearFilter)
 	filter.appendChild(clearBtn)
-	for (let i = 0; i < activeFilter.length; i++) {
-		const filterGroupItem = document.createElement('div')
-		filterGroupItem.classList.add('filter__group__item')
-		const filterText = document.createElement('span')
-		filterText.classList.add('filter__group__item__text')
-		filterText.textContent = activeFilter[i]
-		const filterBtn = document.createElement('button')
-		filterBtn.classList.add('filter__group__item__btn')
-		filterBtn.textContent = 'x'
-		filterGroup.appendChild(filterGroupItem)
-		filterGroupItem.append(filterText, filterBtn)
-		filterBtn.addEventListener('click', updateFilter)
-	}
+	// for (let i = 0; i < activeFilter.length; i++) {
+	// 	const filterGroupItem = document.createElement('div')
+	// 	filterGroupItem.classList.add('filter__group__item')
+	// 	const filterText = document.createElement('span')
+	// 	filterText.classList.add('filter__group__item__text')
+	// 	filterText.textContent = activeFilter[i]
+	// 	const filterBtn = document.createElement('button')
+	// 	filterBtn.classList.add('filter__group__item__btn')
+	// 	filterBtn.textContent = 'x'
+	// 	filterGroup.appendChild(filterGroupItem)
+	// 	filterGroupItem.append(filterText, filterBtn)
+	// 	filterBtn.addEventListener('click', removeFilter)
+	// }
 }
 
 function createFilterItem(text) {
@@ -184,17 +187,18 @@ function createFilterItem(text) {
 		filterBtn.textContent = 'x'
 		filterGroup.appendChild(filterGroupItem)
 		filterGroupItem.append(filterText, filterBtn)
-		filterBtn.addEventListener('click', updateFilter)
+		filterBtn.addEventListener('click', removeFilter)
 	}
 }
 
-const updateFilter = e => {
+const removeFilter = e => {
 	let parentElement = e.target.parentElement
 	let text = parentElement.querySelector('.filter__group__item__text')
 	if (text != null) {
 		for (let i = 0; i < activeFilter.length; i++) {
 			if (text.textContent === activeFilter[i]) {
 				activeFilter.splice(i, 1)
+				updateRemoveFilter()
 				break
 			}
 		}
@@ -203,6 +207,64 @@ const updateFilter = e => {
 	if (activeFilter == null || activeFilter.length == 0) {
 		document.querySelector('.filter').classList.add('filter--disabled')
 		container.style.marginTop = '0px'
+	}
+}
+
+function updateRemoveFilter() {
+	for (let i = companies.length - 1; i >= 0; i--) {
+		let show = true
+		const arrayToFilter = [companies[i].role, companies[i].level, ...companies[i].languages, ...companies[i].tools]
+		for (const filter of activeFilter) {
+			const available = el => el === filter
+			if (arrayToFilter.some(available)) {
+				continue
+			}
+			show = false
+		}
+		if (show) {
+			const comp = companies.splice(i, 1)
+			const element = document.querySelector(`.job-item--disabled[data-id="${comp[0].id}"]`)
+			element.classList.remove('job-item--disabled')
+			activeCompanies.push(comp[0])
+		}
+	}
+}
+
+function updateAddFilter(text) {
+	for (let i = activeCompanies.length - 1; i >= 0; i--) {
+		const role = activeCompanies[i].role
+		const level = activeCompanies[i].level
+		const languages = activeCompanies[i].languages
+		const tools = activeCompanies[i].tools
+		let next = false
+		if (role === text) {
+			continue
+		}
+		if (level === text) {
+			continue
+		}
+		for (const language of languages) {
+			if (language === text) {
+				next = true
+				break
+			}
+		}
+		if (next) {
+			continue
+		}
+		for (const tool of tools) {
+			if (tool === text) {
+				next = true
+				break
+			}
+		}
+		if (next) {
+			continue
+		}
+		const comp = activeCompanies.splice(i, 1)
+		const element = document.querySelector(`.job-item[data-id="${comp[0].id}"]`)
+		element.classList.add('job-item--disabled')
+		companies.push(comp[0])
 	}
 }
 
@@ -225,6 +287,8 @@ const addFilter = e => {
 		}
 		activeFilter.push(text)
 		createFilterItem(text)
+		//Remove job items
+		updateAddFilter(text)
 	} else {
 		console.log('Filter allready exsist')
 	}
@@ -236,7 +300,7 @@ const setButtonsListeners = () => {
 	})
 }
 
+//Initial listeners
 document.addEventListener('DOMContentLoaded', genFilter)
 document.addEventListener('DOMContentLoaded', setButtonsListeners)
-document.addEventListener('DOMContentLoaded', getCompanies)
-//document.addEventListener('DOMContentLoaded', generateJobItems)
+document.addEventListener('DOMContentLoaded', getData)
