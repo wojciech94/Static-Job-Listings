@@ -2,13 +2,6 @@ const header = document.querySelector('.header')
 const container = document.querySelector('.container')
 const filterButtons = document.querySelectorAll('.job-item__tools__element-btn')
 
-//Filter
-//  ---filter__group
-//      ---filter__group__item
-//          span.filter__group__item__text (get json)
-//          button.filter__group__item__btn (x)
-//  ---button.btn.filter__clear-btn (Clear)
-
 class Company {
 	constructor(obj) {
 		this.id = obj.id
@@ -27,30 +20,35 @@ class Company {
 	}
 }
 
-let activeFilter = ['Frontend', 'Senior']
-let test
+let activeFilter = []
+let activeCompanies = []
 let companies = []
 
-const getCompanies = () => {
+const getData = () => {
 	fetch('data.json')
 		.then(response => response.json())
 		.then(data => {
-			data.forEach(element => companies.push(new Company(element)))
+			data.forEach(element => activeCompanies.push(new Company(element)))
+			generateJobItems()
 		})
 }
 
 const generateJobItems = () => {
-	companies.forEach(company => {
+	activeCompanies.forEach(company => {
 		const jobItem = document.createElement('div')
+		jobItem.dataset.id = company.id
 		jobItem.classList.add('job-item')
 		const jobLogo = document.createElement('img')
 		jobLogo.classList.add('job-item__logo')
 		jobLogo.setAttribute('src', company.logo.replace('/images', '/src/img'))
 		jobLogo.setAttribute('alt', company.company)
 		const header = createJobHeader(company)
-		const jobRole = document.createElement('p')
+		const jobRole = document.createElement('div')
+		const roleSpan = document.createElement('span')
+		jobRole.appendChild(roleSpan)
 		jobRole.classList.add('job-item__role')
-		jobRole.textContent = company.position
+		roleSpan.classList.add('job-item__role__span')
+		roleSpan.textContent = company.position
 		const jobDetails = createJobDetails(company)
 		const jobTools = createJobTools(company)
 		jobItem.append(jobLogo, header, jobRole, jobDetails, jobTools)
@@ -72,7 +70,6 @@ function createJobHeader(company) {
 		const preferencesGroup = document.createElement('div')
 		preferencesGroup.classList.add('job-item__header__preference')
 		if (company.new == true) {
-			console.log('new')
 			const preferenceNew = document.createElement('div')
 			preferenceNew.classList.add('job-item__header__preference--default', 'job-item__header__preference--new')
 			const newSpan = document.createElement('span')
@@ -81,7 +78,6 @@ function createJobHeader(company) {
 			preferencesGroup.appendChild(preferenceNew)
 		}
 		if (company.featured == true) {
-			console.log('featured')
 			const preferenceFeatured = document.createElement('div')
 			preferenceFeatured.classList.add(
 				'job-item__header__preference--default',
@@ -144,7 +140,7 @@ function createJobElement(text) {
 //Filter functions
 const genFilter = () => {
 	const filter = document.createElement('div')
-	filter.classList.add('filter')
+	filter.classList.add('filter', 'filter--disabled')
 	filter.id = 'filter'
 	document.body.appendChild(filter)
 	const filterGroup = document.createElement('div')
@@ -155,24 +151,12 @@ const genFilter = () => {
 	clearBtn.textContent = 'Clear'
 	clearBtn.addEventListener('click', clearFilter)
 	filter.appendChild(clearBtn)
-	for (let i = 0; i < activeFilter.length; i++) {
-		const filterGroupItem = document.createElement('div')
-		filterGroupItem.classList.add('filter__group__item')
-		const filterText = document.createElement('span')
-		filterText.classList.add('filter__group__item__text')
-		filterText.textContent = activeFilter[i]
-		const filterBtn = document.createElement('button')
-		filterBtn.classList.add('filter__group__item__btn')
-		filterBtn.textContent = 'x'
-		filterGroup.appendChild(filterGroupItem)
-		filterGroupItem.append(filterText, filterBtn)
-		filterBtn.addEventListener('click', updateFilter)
-	}
+	const beforeElement = document.querySelector('.attribution')
+	document.body.insertBefore(filter, beforeElement)
 }
 
 function createFilterItem(text) {
 	const filterGroup = document.querySelector('.filter__group')
-	test = filterGroup
 	if (filterGroup != null) {
 		const filterGroupItem = document.createElement('div')
 		filterGroupItem.classList.add('filter__group__item')
@@ -184,17 +168,18 @@ function createFilterItem(text) {
 		filterBtn.textContent = 'x'
 		filterGroup.appendChild(filterGroupItem)
 		filterGroupItem.append(filterText, filterBtn)
-		filterBtn.addEventListener('click', updateFilter)
+		filterBtn.addEventListener('click', removeFilter)
 	}
 }
 
-const updateFilter = e => {
+const removeFilter = e => {
 	let parentElement = e.target.parentElement
 	let text = parentElement.querySelector('.filter__group__item__text')
 	if (text != null) {
 		for (let i = 0; i < activeFilter.length; i++) {
 			if (text.textContent === activeFilter[i]) {
 				activeFilter.splice(i, 1)
+				updateRemoveFilter()
 				break
 			}
 		}
@@ -206,6 +191,64 @@ const updateFilter = e => {
 	}
 }
 
+function updateRemoveFilter() {
+	for (let i = companies.length - 1; i >= 0; i--) {
+		let show = true
+		const arrayToFilter = [companies[i].role, companies[i].level, ...companies[i].languages, ...companies[i].tools]
+		for (const filter of activeFilter) {
+			const available = el => el === filter
+			if (arrayToFilter.some(available)) {
+				continue
+			}
+			show = false
+		}
+		if (show) {
+			const comp = companies.splice(i, 1)
+			const element = document.querySelector(`.job-item--disabled[data-id="${comp[0].id}"]`)
+			element.classList.remove('job-item--disabled')
+			activeCompanies.push(comp[0])
+		}
+	}
+}
+
+function updateAddFilter(text) {
+	for (let i = activeCompanies.length - 1; i >= 0; i--) {
+		const role = activeCompanies[i].role
+		const level = activeCompanies[i].level
+		const languages = activeCompanies[i].languages
+		const tools = activeCompanies[i].tools
+		let next = false
+		if (role === text) {
+			continue
+		}
+		if (level === text) {
+			continue
+		}
+		for (const language of languages) {
+			if (language === text) {
+				next = true
+				break
+			}
+		}
+		if (next) {
+			continue
+		}
+		for (const tool of tools) {
+			if (tool === text) {
+				next = true
+				break
+			}
+		}
+		if (next) {
+			continue
+		}
+		const comp = activeCompanies.splice(i, 1)
+		const element = document.querySelector(`.job-item[data-id="${comp[0].id}"]`)
+		element.classList.add('job-item--disabled')
+		companies.push(comp[0])
+	}
+}
+
 const clearFilter = () => {
 	activeFilter = []
 	const filterGroupItems = document.querySelectorAll('.filter__group__item')
@@ -214,6 +257,12 @@ const clearFilter = () => {
 	})
 	document.querySelector('.filter').classList.add('filter--disabled')
 	container.style.marginTop = '0px'
+	const disabledCompanies = document.querySelectorAll('.job-item--disabled')
+	for (const company of disabledCompanies) {
+		company.classList.remove('job-item--disabled')
+	}
+	activeCompanies.push(...companies)
+	companies = []
 }
 
 const addFilter = e => {
@@ -225,6 +274,7 @@ const addFilter = e => {
 		}
 		activeFilter.push(text)
 		createFilterItem(text)
+		updateAddFilter(text)
 	} else {
 		console.log('Filter allready exsist')
 	}
@@ -236,7 +286,7 @@ const setButtonsListeners = () => {
 	})
 }
 
+//Initial listeners
 document.addEventListener('DOMContentLoaded', genFilter)
 document.addEventListener('DOMContentLoaded', setButtonsListeners)
-document.addEventListener('DOMContentLoaded', getCompanies)
-//document.addEventListener('DOMContentLoaded', generateJobItems)
+document.addEventListener('DOMContentLoaded', getData)
