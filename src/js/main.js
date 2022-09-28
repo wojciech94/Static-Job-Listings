@@ -2,13 +2,6 @@ const header = document.querySelector('.header')
 const container = document.querySelector('.container')
 const filterButtons = document.querySelectorAll('.job-item__tools__element-btn')
 
-//Filter
-//  ---filter__group
-//      ---filter__group__item
-//          span.filter__group__item__text (get json)
-//          button.filter__group__item__btn (x)
-//  ---button.btn.filter__clear-btn (Clear)
-
 class Company {
 	constructor(obj) {
 		this.id = obj.id
@@ -28,7 +21,6 @@ class Company {
 }
 
 let activeFilter = []
-let test
 let activeCompanies = []
 let companies = []
 
@@ -51,9 +43,12 @@ const generateJobItems = () => {
 		jobLogo.setAttribute('src', company.logo.replace('/images', '/src/img'))
 		jobLogo.setAttribute('alt', company.company)
 		const header = createJobHeader(company)
-		const jobRole = document.createElement('p')
+		const jobRole = document.createElement('div')
+		const roleSpan = document.createElement('span')
+		jobRole.appendChild(roleSpan)
 		jobRole.classList.add('job-item__role')
-		jobRole.textContent = company.position
+		roleSpan.classList.add('job-item__role__span')
+		roleSpan.textContent = company.position
 		const jobDetails = createJobDetails(company)
 		const jobTools = createJobTools(company)
 		jobItem.append(jobLogo, header, jobRole, jobDetails, jobTools)
@@ -75,7 +70,6 @@ function createJobHeader(company) {
 		const preferencesGroup = document.createElement('div')
 		preferencesGroup.classList.add('job-item__header__preference')
 		if (company.new == true) {
-			console.log('new')
 			const preferenceNew = document.createElement('div')
 			preferenceNew.classList.add('job-item__header__preference--default', 'job-item__header__preference--new')
 			const newSpan = document.createElement('span')
@@ -84,7 +78,6 @@ function createJobHeader(company) {
 			preferencesGroup.appendChild(preferenceNew)
 		}
 		if (company.featured == true) {
-			console.log('featured')
 			const preferenceFeatured = document.createElement('div')
 			preferenceFeatured.classList.add(
 				'job-item__header__preference--default',
@@ -147,7 +140,7 @@ function createJobElement(text) {
 //Filter functions
 const genFilter = () => {
 	const filter = document.createElement('div')
-	filter.classList.add('filter')
+	filter.classList.add('filter', 'filter--disabled')
 	filter.id = 'filter'
 	document.body.appendChild(filter)
 	const filterGroup = document.createElement('div')
@@ -158,24 +151,12 @@ const genFilter = () => {
 	clearBtn.textContent = 'Clear'
 	clearBtn.addEventListener('click', clearFilter)
 	filter.appendChild(clearBtn)
-	// for (let i = 0; i < activeFilter.length; i++) {
-	// 	const filterGroupItem = document.createElement('div')
-	// 	filterGroupItem.classList.add('filter__group__item')
-	// 	const filterText = document.createElement('span')
-	// 	filterText.classList.add('filter__group__item__text')
-	// 	filterText.textContent = activeFilter[i]
-	// 	const filterBtn = document.createElement('button')
-	// 	filterBtn.classList.add('filter__group__item__btn')
-	// 	filterBtn.textContent = 'x'
-	// 	filterGroup.appendChild(filterGroupItem)
-	// 	filterGroupItem.append(filterText, filterBtn)
-	// 	filterBtn.addEventListener('click', removeFilter)
-	// }
+	const beforeElement = document.querySelector('.attribution')
+	document.body.insertBefore(filter, beforeElement)
 }
 
 function createFilterItem(text) {
 	const filterGroup = document.querySelector('.filter__group')
-	test = filterGroup
 	if (filterGroup != null) {
 		const filterGroupItem = document.createElement('div')
 		filterGroupItem.classList.add('filter__group__item')
@@ -276,6 +257,12 @@ const clearFilter = () => {
 	})
 	document.querySelector('.filter').classList.add('filter--disabled')
 	container.style.marginTop = '0px'
+	const disabledCompanies = document.querySelectorAll('.job-item--disabled')
+	for (const company of disabledCompanies) {
+		company.classList.remove('job-item--disabled')
+	}
+	activeCompanies.push(...companies)
+	companies = []
 }
 
 const addFilter = e => {
@@ -287,7 +274,6 @@ const addFilter = e => {
 		}
 		activeFilter.push(text)
 		createFilterItem(text)
-		//Remove job items
 		updateAddFilter(text)
 	} else {
 		console.log('Filter allready exsist')

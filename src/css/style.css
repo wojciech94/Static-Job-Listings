@@ -169,9 +169,15 @@ body .container .job-item__header__preference--default {
 body .container .job-item__header__preference--featured {
   background-color: hsl(180deg, 14%, 20%);
 }
-body .container .job-item__role {
+body .container .job-item__role__span {
   color: hsl(180deg, 14%, 20%);
   font-weight: bold;
+  font-size: 1.7rem;
+  transition: color 0.2s ease-in-out;
+}
+body .container .job-item__role__span:hover {
+  color: hsl(180deg, 29%, 50%);
+  cursor: pointer;
 }
 body .container .job-item__details {
   position: relative;
@@ -235,7 +241,7 @@ body .container .job-item__tools__element-btn {
   transition: color 0.2s ease-in, background-color 0.2s ease-in;
 }
 body .container .job-item__tools__element-btn:hover {
-  background-color: hsl(180deg, 14%, 20%);
+  background-color: hsl(180deg, 29%, 50%);
   color: #fff;
 }
 body .container .job-item--disabled {
